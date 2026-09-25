@@ -207,7 +207,10 @@ export default function Dashboard() {
         reviews: [],
       });
       setToast("Product added to this workspace.");
-      if (page !== 1) updateUrl({ page: 1 });
+      setSearchInput("");
+      if (page !== 1 || search || category) {
+        updateUrl({ page: 1, search: "", category: "" });
+      }
     }
     setFormProduct(null);
     setRetry((value) => value + 1);
