@@ -2,6 +2,8 @@
 
 A small product admin app built with Next.js, React, Tailwind CSS, and Axios. It uses the [DummyJSON API](https://dummyjson.com/docs) for authentication and product data.
 
+Live demo: [frontend-assignment-pi-inky.vercel.app](https://frontend-assignment-pi-inky.vercel.app)
+
 ## Run locally
 
 1. Install Node.js 20 or newer.
@@ -42,4 +44,4 @@ AI helped scaffold the app, shape the visual design, and review the implementati
 
 ## Deployment
 
-The app can be deployed to Vercel by importing this repository. It does not require environment variables. The deployment should use `npm run build` and the standard Next.js output.
+The app is deployed on Vercel from the `main` branch of this repository. It does not require environment variables. Vercel uses the standard Next.js build output.
