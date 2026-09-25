@@ -21,7 +21,11 @@ api.interceptors.response.use(
       clearSession();
       if (typeof window !== "undefined") window.dispatchEvent(new Event("session-expired"));
     }
-    const message = error.response?.data?.message || (error.code === "ECONNABORTED" ? "The request timed out. Please try again." : "Something went wrong. Please try again.");
+    const message =
+      error.response?.data?.message ||
+      (error.code === "ECONNABORTED"
+        ? "The request timed out. Please try again."
+        : "Something went wrong. Please try again.");
     return Promise.reject(new Error(message));
   },
 );
@@ -41,28 +45,54 @@ export function getSession(): Session | null {
 
 export function saveSession(session: Session) {
   window.localStorage.setItem(TOKEN_KEY, session.accessToken);
-  window.localStorage.setItem(USER_KEY, JSON.stringify({ username: session.username, firstName: session.firstName, lastName: session.lastName }));
-  document.cookie = `product_admin_token=${encodeURIComponent(session.accessToken)}; path=/; max-age=3600; SameSite=Lax; Secure`;
+  window.localStorage.setItem(
+    USER_KEY,
+    JSON.stringify({
+      username: session.username,
+      firstName: session.firstName,
+      lastName: session.lastName,
+    }),
+  );
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `product_admin_token=${encodeURIComponent(session.accessToken)}; path=/; max-age=3600; SameSite=Lax${secure}`;
 }
 
 export function clearSession() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(TOKEN_KEY);
   window.localStorage.removeItem(USER_KEY);
-  document.cookie = "product_admin_token=; path=/; max-age=0; SameSite=Lax; Secure";
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `product_admin_token=; path=/; max-age=0; SameSite=Lax${secure}`;
 }
 
 export async function login(username: string, password: string): Promise<Session> {
-  const { data } = await api.post<Session>("/auth/login", { username, password, expiresInMins: 60 });
+  const { data } = await api.post<Session>("/auth/login", {
+    username,
+    password,
+    expiresInMins: 60,
+  });
   saveSession(data);
   return data;
 }
 
-export async function getProducts({ page, size, search, category, sort }: ListParams, signal?: AbortSignal): Promise<ProductList> {
+export async function getProducts(
+  { page, size, search, category, sort }: ListParams,
+  signal?: AbortSignal,
+): Promise<ProductList> {
   const [sortBy, order] = sort.split("-");
-  const path = search ? "/products/search" : category ? `/products/category/${encodeURIComponent(category)}` : "/products";
+  const path = search
+    ? "/products/search"
+    : category
+      ? `/products/category/${encodeURIComponent(category)}`
+      : "/products";
   const { data } = await api.get<ProductList>(path, {
-    params: { ...(search ? { q: search } : {}), limit: size, skip: (page - 1) * size, sortBy, order },
+    params: {
+      ...(search ? { q: search } : {}),
+      limit: size,
+      skip: (page - 1) * size,
+      sortBy,
+      order,
+    },
     signal,
   });
   return data;
